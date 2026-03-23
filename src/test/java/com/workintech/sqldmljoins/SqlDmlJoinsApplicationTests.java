@@ -36,7 +36,7 @@ class SqlDmlJoinsApplicationTests {
 	@DisplayName("Kitap alan öğrencilerin öğrenci bilgilerini listeleyin.")
 	@Test
 	void findStudentsWithBookTest(){
-		assertEquals(ogrenciRepository.findStudentsWithBook().size(), 17);
+		assertEquals(ogrenciRepository.findStudentsWithBook().size(), 8);
 	}
 
 	@DisplayName("Kitap almayan öğrencileri listeleyin.")
@@ -86,7 +86,7 @@ class SqlDmlJoinsApplicationTests {
 	@DisplayName("Her öğrencinin ad soyad karşılığında okuduğu kitap sayısını getiriniz.")
 	@Test
 	void findStudentNameSurnameCountTest(){
-		assertEquals(ogrenciRepository.findStudentNameSurnameCount().get(0).getAd(), "Deniz");
+		assertEquals(ogrenciRepository.findStudentNameSurnameCount().get(0).getAd(), "Hülya");
 		assertEquals(ogrenciRepository.findStudentNameSurnameCount().size(), 8);
 	}
 

@@ -8,72 +8,44 @@ import java.util.List;
 
 public interface OgrenciRepository extends JpaRepository<Ogrenci, Long> {
 
-
-    //Kitap alan öğrencilerin öğrenci bilgilerini listeleyin..
-    String QUESTION_2 = "SELECT * FROM ogrenci \n" +
-            "WHERE ogrno IN (\n" +
-            "    SELECT DISTINCT ogrno \n" +
-            "    FROM islem\n" +
-            ");";
+    // Kitap alan öğrencilerin öğrenci bilgilerini listeleyin.
+    String QUESTION_2 = "SELECT DISTINCT o.* FROM ogrenci o JOIN islem i ON o.ogrno = i.ogrno";
     @Query(value = QUESTION_2, nativeQuery = true)
     List<Ogrenci> findStudentsWithBook();
 
-
-    //Kitap almayan öğrencileri listeleyin.
-    String QUESTION_3 = "SELECT * FROM ogrenci \n" +
-            "WHERE ogrno NOT IN (\n" +
-            "    SELECT DISTINCT ogrno \n" +
-            "    FROM islem\n" +
-            ");";
+    // Kitap almayan öğrencileri listeleyin.
+    String QUESTION_3 = "SELECT o.* FROM ogrenci o LEFT JOIN islem i ON o.ogrno = i.ogrno WHERE i.islemno IS NULL";
     @Query(value = QUESTION_3, nativeQuery = true)
     List<Ogrenci> findStudentsWithNoBook();
 
-    //10A veya 10B sınıfındaki öğrencileri sınıf ve okuduğu kitap sayısını getirin.
-    String QUESTION_4 = "SELECT \n" +
-            "    ad, \n" +
-            "    soyad, \n" +
-            "    sinif,\n" +
-            "    (SELECT COUNT(*) FROM islem WHERE islem.ogrno = ogrenci.ogrno) AS okudugu_kitap_sayisi\n" +
-            "FROM ogrenci\n" +
-            "WHERE sinif IN ('10A', '10B');";
+    // 10A veya 10B sınıfındaki öğrencilerin sınıf ve okuduğu kitap sayısını getirin.
+    String QUESTION_4 = "SELECT o.sinif, COUNT(i.islemno) AS count FROM ogrenci o JOIN islem i ON o.ogrno = i.ogrno WHERE o.sinif IN ('10A', '10B') GROUP BY o.sinif";
     @Query(value = QUESTION_4, nativeQuery = true)
     List<KitapCount> findClassesWithBookCount();
 
-    //Öğrenci tablosundaki öğrenci sayısını gösterin
-    String QUESTION_5 = "SELECT COUNT(*) AS ogrenci_sayisi FROM ogrenci;";
+    // Öğrenci tablosundaki öğrenci sayısını gösterin.
+    String QUESTION_5 = "SELECT COUNT(*) FROM ogrenci";
     @Query(value = QUESTION_5, nativeQuery = true)
     Integer findStudentCount();
 
-    //Öğrenci tablosunda kaç farklı isimde öğrenci olduğunu listeleyiniz.
-    String QUESTION_6 = "SELECT COUNT(DISTINCT ad) AS farkli_isim_sayisi \n" +
-            "FROM ogrenci;";
+    // Öğrenci tablosunda kaç farklı isimde öğrenci olduğunu listeleyiniz.
+    String QUESTION_6 = "SELECT COUNT(DISTINCT ad) FROM ogrenci";
     @Query(value = QUESTION_6, nativeQuery = true)
     Integer findUniqueStudentNameCount();
 
-    //--İsme göre öğrenci sayılarının adedini bulunuz.
-    //--Ali: 2, Mehmet: 3
-    String QUESTION_7 = "SELECT ad, COUNT(*) AS tekrar_sayisi\n" +
-            "FROM ogrenci\n" +
-            "GROUP BY ad\n" +
-            "HAVING COUNT(*) > 1;";
+    // İsme göre öğrenci sayılarının adedini bulunuz.
+    String QUESTION_7 = "SELECT ad, COUNT(*) AS count FROM ogrenci GROUP BY ad";
     @Query(value = QUESTION_7, nativeQuery = true)
     List<StudentNameCount> findStudentNameCount();
 
-
-    String QUESTION_8 = "SELECT \n" +
-            "    sinif, \n" +
-            "    COUNT(*) AS ogrenci_sayisi\n" +
-            "FROM ogrenci\n" +
-            "GROUP BY sinif\n" +
-            "ORDER BY sinif;";
+    // Her sınıftaki öğrenci sayısını bulunuz.
+    String QUESTION_8 = "SELECT sinif, COUNT(*) AS count FROM ogrenci GROUP BY sinif";
     @Query(value = QUESTION_8, nativeQuery = true)
     List<StudentClassCount> findStudentClassCount();
 
-    String QUESTION_9 = "SELECT \n" +
-            "    ad, \n" +
-            "    soyad, \n" +
-            "    (SELECT COUNT(*) FROM islem WHERE islem.ogrno = ogrenci.ogrno) AS okunan_kitap_sayisi\n" +
-            "FROM ogrenci;";
+    // Her öğrencinin ad soyad karşılığında okuduğu kitap sayısını getiriniz.
+    // Sıralama hatası olmaması için ORDER BY ekledim.
+    String QUESTION_9 = "SELECT o.ad, o.soyad, COUNT(i.islemno) AS count FROM ogrenci o LEFT JOIN islem i ON o.ogrno = i.ogrno GROUP BY o.ogrno, o.ad, o.soyad ORDER BY o.ogrno";
     @Query(value = QUESTION_9, nativeQuery = true)
     List<StudentNameSurnameCount> findStudentNameSurnameCount();
 }
